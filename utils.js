@@ -14,26 +14,54 @@ var ismobile = (
  var isitmobile = ismobile;
 
  /**
-  * Save data to file
-  * @param {string} data - Data to save
+  * Download url
+  * @param {string} url - Url to save
   * @param {string} filename - Default filename and extension when saving
   * @example
-  * datasave(data) // Will be saved as "download.txt"
-  * datasave(data,"data-2023.txt")
+  * download_url("https://www.example.com") // Will be saved as "download.txt"
+  * download_url("https://www.example.com","data-2023.txt")
   */
 
- function datasave(data = "", filename = "download.txt"){
-   let element;
-   element = document.createElement('a');
-   element.setAttribute(
-     'href',
-     'data:text/plain;charset=utf-8,'+ encodeURIComponent(data)
-   );
-   element.setAttribute( 'download', filename );
+ function download_url(url = "", filename = "download.txt"){
+   let element = document.createElement('a');
+   element.href = url;
+   element.download = filename;
    element.style.display = 'none';
    document.body.appendChild(element);
    element.click();
    document.body.removeChild(element);
+ }
+
+ /**
+  * Save blob / data string to file
+  * @param {object|string} blob - Blob / string to save
+  * @param {string} filename - Default filename and extension when saving
+  * @example
+  * let dataBlob = new Blob([data], { type: 'text/plain' });
+  * download_blob(dataBlob) // Will be saved as "download.txt"
+  * download_blob(dataBlob,"data-2023.txt")
+  * download_blob("String to be saved","data-2023.txt")
+  */
+
+ function download_blob(blob, filename = "download.txt"){
+   if(isString(blob))
+     blob = new Blob( [blob], { type: 'text/plain' } );
+   blob = window.URL.createObjectURL(blob);
+   let element = document.createElement('a');
+   element.href = blob;
+   element.download = filename;
+   element.style.display = 'none';
+   document.body.appendChild(element);
+   element.click();
+   document.body.removeChild(element);
+   window.URL.revokeObjectURL(blob);
+   window.URL.revokeObjectURL(element.href);
+ }
+
+ // Backward Compatibility
+ function datasave(data = "", filename = "download.txt"){
+   //download_url('data:text/plain;charset=utf-8,'+ encodeURIComponent(data), filename);
+   download_blob(data, filename);
  }
 
  /**
@@ -44,9 +72,9 @@ var ismobile = (
   * @return {object}
   * @example
   * // Single file
-  * (await dataload(this))[0]
+  * let data = (await dataload(this))[0]
   * // Multiple files
-  * (await dataload(this)).join("\n")
+  * let data = (await dataload(this)).join("\n")
   */
 
  async function dataload(fileOpt){
@@ -67,16 +95,16 @@ var ismobile = (
  }
 
  /**
-  * Compare multiple arrays
-  * @param {object} items - Array
+  * Compare multiple arrays / array objects
+  * @param {object} items - Array / array objects
   * @return {boolean}
   * @example
   * // Return true if they're all equal
   * // Or else return false
-  * compareArray(array1, array2, array3 . . . arrayn)
+  * arrayCompare(array1, array2, array3 . . . arrayn)
   */
 
- function compareArray(...items) {
+ function arrayCompare(...items) {
    let item = JSON.stringify(items[0]), result = true;
    for (let i = 1; i < items.length; i++) {
      result = item == JSON.stringify(items[i]);
@@ -84,6 +112,28 @@ var ismobile = (
    }
    return true;
  }
+
+ /**
+  * Deep-copy and/or merge array / object (Need jquery for object)
+  * @param {object} item - Array / Object
+  * @return {object}
+  * @example
+  * let array1 = ["Johny"];
+  * let array2 = ["William", "Manager"];
+  * let object1 = {firstname: "Johny"};
+  * let object2 = {lastname: "William", posittion: "Manager"};
+  * let data1 = arrayCopy(array1,array2)
+  * let data2 = arrayCopy(object1) // Deep copy
+  * let data3 = arrayCopy(object1,object2) // Merge and deep copy
+  */
+
+ function arrayCopy(...items){
+   return ( Array.isArray(items[0]) ? [].concat(...items) : $.extend({}, ...items) );
+ }
+
+ var arrayCompact = arr => arr.filter(Boolean),
+ arrayUnique = arr => [...new Set(arr)],
+ arrayLast = arr => arr.slice(-1)[0];
 
  /**
   * Add comma to thousand
@@ -143,6 +193,7 @@ var ismobile = (
   * formatBytes(120000)
   * formatBytes(120000, 2, 1000)
   */
+
  function formatBytes(bytes, decimals = 3, kopt = 1024) {
    if (!+bytes) return '0 Bytes'
    const k = kopt == 1024 ? 1024 : 1000
@@ -154,3 +205,29 @@ var ismobile = (
    const i = Math.floor(Math.log(bytes) / Math.log(k))
    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[k][i]}`
  }
+
+ /**
+  * Throw New Error
+  * @param {string} name - Error name
+  * @param {string} message - Error message
+  * @return {object}
+  * @example
+  * throw NewError("typeError","You're using the wrong type!")
+  */
+
+ function NewError(name,message){
+   let err = new Error(message);
+   err.name = name;
+   return err;
+ }
+
+ var isFunction = value => typeof value === 'function',
+    isObject = value => typeof value === 'object' && value !== null,
+    isArray = value => Array.isArray(value),
+    isString = value => typeof value === 'string',
+    isNumber = value => typeof value === 'number' && value !== null,
+    isInteger = value => typeof value === 'number' && value === Number(value),
+    isUndefined = value => typeof value === 'undefined',
+    isNull = value => value === null,
+    isEmpty = value => value == "" || isNull(value) || isUndefined(value),
+    sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));

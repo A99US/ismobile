@@ -1,10 +1,10 @@
-# How To Use
+# Functions
+
+## How To Use
 
 ```html
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/A99US/utils.js/utils.min.js"></script>
 ```
-
-# Functions
 
 ## ismobile
 
@@ -16,14 +16,25 @@ ismobile ? "You are mobile" : "You're not mobile"
 
 Original code from http://detectmobilebrowser.com/
 
-## datasave()
+## download_url()
 
-Save data to file
+Download url.
 
 ```javascript
-let data = "Data String";
-datasave(data) // Will be saved as "download.txt"
-datasave(data,"data-2023.txt")
+let data = "https://www.example.com/header.jpg";
+download_url(data) // Will be saved as "download.txt", unless browser force other name
+download_url(data,"example.jpg")
+```
+
+## download_blob()
+
+Download blob. First argument could be string instead of blob.
+
+```javascript
+let dataBlob = new Blob(["data"], { type: 'text/plain' });
+download_blob(dataBlob) // Will be saved as "download.txt"
+download_blob(dataBlob,"data-2023.txt")
+download_blob("String to be saved","data-2023.txt")
 ```
 
 ## dataload()
@@ -41,9 +52,9 @@ $("#file").change(async function(){
   );
 });
 ```
-## compareArray()
+## Array & Object Function
 
-Compare multiple arrays
+compareArray() : Compare multiple arrays or objects
 
 ```javascript
 // compareArray(array1, array2, array3, . . . . arrayn)
@@ -51,6 +62,25 @@ Compare multiple arrays
 // Or else return false
 compareArray(array1, array2, array3)
 ```
+
+arrayCopy() : Deep-copy and/or merge array / object (Need jquery for object)
+
+```javascript
+let array1 = ["Johny"];
+let array2 = ["William", "Manager"];
+let object1 = {firstname: "Johny"};
+let object2 = {lastname: "William", posittion: "Manager"};
+let data1 = arrayCopy(array1,array2)
+let data2 = arrayCopy(object1) // Deep copy
+let data3 = arrayCopy(object1,object2) // Merge and deep copy
+```
+
+arrayCompact(arr) : Remove falsy items (Array, not object)
+
+arrayUnique(arr) : Remove duplicate items (Array, not object)
+
+arrayLast(arr) : Get last item (Array, not object)
+
 
 ## comma()
 
@@ -86,4 +116,28 @@ Formatting bytes (number) into highest denomination (MB, GB, etc)
 // kopt : Kilo divider (1024 or 1000), default 1024
 formatBytes(120000)
 formatBytes(120000, 2, 1000)
+```
+
+## NewError()
+
+Create new Error object
+
+```javascript
+// NewError(name,message)
+throw NewError("typeError","You're using the wrong type!")
+```
+
+## Extra Functions
+
+```javascript
+isFunction(myFunc)
+isObject(arrObject)
+isArray(arr)
+isString("is it a string")
+isNumber("a")
+isInteger(2.45)
+isUndefined(data.item)
+isNull(index)
+isEmpty(name) // True if it is null, undefined or ""
+sleep(10000) // in miliseconds
 ```
